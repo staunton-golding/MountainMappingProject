@@ -63,7 +63,7 @@ To create a kernel from this environment, activate the environment, then run the
 ## Installation
 
 you can either download a zip file, and unzip it to the folder of your choosing (this will extract a single folder called mmp_main), or use git to clone this repository with 
-'git clone ___'
+'git clone https://github.com/staunton-golding/MountainMappingProject.git'
 
 ## Usage
 To use this repository, upload a photo of some pretty mountains, open mmp_main.ipynb, find where you are prompted to put the path to your image, and run each cell in the notebook.
