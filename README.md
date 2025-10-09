@@ -7,18 +7,18 @@ All code and necessary files are housed in the 'mmp' folder. The mmp_main.ipynb 
 
 ## Project Overview
 A high level overview of the pipeline (both completed and yet to be implemented):
-  - scrape photo metadata for coordinates of image
-  - download ~ +-1° lat and long DEM data centered around photo location (horizon line very rarely further than this)
+  - Scrape photo metadata for coordinates of image
+  - Download ~ +-1° lat and long DEM data centered around photo location (horizon line very rarely further than this)
   - Filter Colorado Peaks by those within the bounding box of the downloaded DEM data
   - Convert 3d cartesian DEM data to 2d adjust polar coordinates
   - "Unwrap" polar DEM, creating a rendered 360 view of ridgelines surrounding the site of the photo
   - Annotate rendered view with peaks, ignoring peaks hidden by larger mountains.
   - *NOTE - everything below is still to be done*
-  - train a u-net on image segmentation of mountain ranges (segmenting the mountains from the sky)
-  - deploy u-net, segment photograph
-  - delineate photo's ridgeline and panoramic rendered ridgeline
-  - register photo's ridgeline to the rendered ridgeline
-  - crop and inverse transform rendered ridgeline (and peak annotations) to photo
+  - Train a u-net on image segmentation of mountain ranges (segmenting the mountains from the sky)
+  - Deploy u-net, segment photograph
+  - Delineate photo's ridgeline and panoramic rendered ridgeline
+  - Register photo's ridgeline to the rendered ridgeline
+  - Crop and inverse transform rendered ridgeline (and peak annotations) to photo
   - Return photo with annotations describing every mountain peak
 
 Some general notes
