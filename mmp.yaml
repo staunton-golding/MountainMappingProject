@@ -1,0 +1,20 @@
+name: mmp_env
+channels:
+  - defaults
+dependencies:
+  - python=3.9 
+  - gdal
+  - pyproj
+  - numpy
+  - jupyter
+  - matplotlib
+  - scipy
+  - geopandas
+  - git
+  - pip
+  - pip:
+      - adjustText
+      - pillow_heif
+      - pillow
+      - numba
+      - ipython
