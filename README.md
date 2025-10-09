@@ -3,7 +3,7 @@
 ## Description
 Do you ever look at a mountain range and think "So pretty! What mountain is that?" I do, all the time (I'm horrible at geography). This repository was made to answer that question - it identifies peaks in user-uploaded photos. It is currently still in progress. Also currently only for use in Colorado, but will be expanded to the lower 48 of the US shortly (I have only queried NGIS for Colorado mountain peaks).
 
-All code and necessary files are housed in the 'mmp' folder. 
+All code and necessary files are housed in the 'mmp' folder. The mmp_main.ipynb notebook takes ~2-4 minutes to run.
 
 ## Project Overview
 A high level overview of the pipeline (both completed and yet to be implemented):
