@@ -3,7 +3,7 @@
 ## Description
 Do you ever look at a mountain range and think "So pretty! What mountain is that?" I do, all the time (I'm horrible at geography). This repository was made to answer that question - it identifies peaks in user-uploaded photos. It is currently still in progress. Also currently only for use in Colorado, but will be expanded to the lower 48 of the US shortly (I have only queried NGIS for Colorado mountain peaks).
 
-All code and necessary files are housed in the 'mmp' folder. The mmp_main.ipynb notebook takes ~2-4 minutes to run.
+All code and necessary files are housed in the `mmp` folder. The mmp_main.ipynb notebook takes ~2-4 minutes to run.
 
 ## Project Overview
 A high level overview of the pipeline (both completed and yet to be implemented):
@@ -48,22 +48,22 @@ Dependencies for this repository include:
 
 I've supplied a .yaml file for use in creating a conda env for this project. To use, run this from the command line:
 
-'conda env create -f mmp.yaml'
+`conda env create -f mmp.yaml`
 
 To activate the environemnt, run the following from the command line:
 
-'conda activate mmp_env'
+`conda activate mmp_env`
 
 After activating, download this repository (used for downloading DEM data from The National Map): https://code.usgs.gov/gecsc/dem_getter. Place the dem_getter folder in your chosen directory (you really only need dem_getter.py).
 
 To create a kernel from this environment, activate the environment, then run the following from the command line:
 
-'python -m ipykernel install --name=mmp_env'
+`python -m ipykernel install --name=mmp_env`
 
 ## Installation
 
 you can either download a zip file, and unzip it to the folder of your choosing (this will extract a single folder called mmp_main), or use git to clone this repository with 
-'git clone https://github.com/staunton-golding/MountainMappingProject.git'
+`git clone https://github.com/staunton-golding/MountainMappingProject.git`
 
 ## Usage
 To use this repository, upload a photo of some pretty mountains, open mmp_main.ipynb, find where you are prompted to put the path to your image, and run each cell in the notebook.
