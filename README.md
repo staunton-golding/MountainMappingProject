@@ -75,3 +75,5 @@ Other plans include:
   - Add support for non-geotagged images
   - optimize panoramic rendering speeds
 When I finish this project, I am sure there will be more things to improve.
+
+I also suspect that I'll need to revamp the pseudo-polar transform from 3D DEM to an unwrapped 2D 360 panoramic rendering of the ridgeline. Going to investigate this after I complete first iteration of this pipeline.
