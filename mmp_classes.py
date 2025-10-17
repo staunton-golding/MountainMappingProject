@@ -188,7 +188,7 @@ def _color_fill(rad, max_r):
 
 class PolarImage(object):
 
-    def __init__(self, band1, gt, midpoint, lat, aoi_P1, row_indices, elev_add, df_selected):
+    def __init__(self, band1, gt, midpoint, lat, aoi_P1, row_indices, elev_add, df_selected, elev_photo):
         
         self.midpoint = midpoint
         self.lat = lat
@@ -200,13 +200,13 @@ class PolarImage(object):
         self.elev_add = elev_add
 
         #convert DEM to adjusted polar coordinates
-        self.cart2pol_im(self.band1, self.midpoint, self.delta_deg, self.lat)
-        imshow_arr = np.zeros((np.max(self.elev_corrected)+50,np.max(self.theta_round)))
+        self.cart2pol_im(self.band1, self.midpoint, self.delta_deg, self.lat, elev_photo)
+        imshow_arr = np.zeros((np.max(self.elev_phi)+50,np.max(self.theta_round)))
         #Convert mountain peaks to adjusted polar coordinates
-        self.unwrap_peak_labels(self.aoi_P1, self.row_indices, self.midpoint, self.band1, self.elev_corrected, df_selected)
+        self.unwrap_peak_labels(self.aoi_P1, self.row_indices, self.midpoint, self.band1, self.elev_phi, df_selected)
         #fill panoramic image (DEM data and peaks)
         start = time.time()
-        self.pano_image_arr, self.peak_check_mask = self.fill_im_array(imshow_arr, self.r_sorted, self.elev_corrected, self.theta_round, self.color, self.peak_check_mask, self.elev_add)
+        self.pano_image_arr, self.peak_check_mask = self.fill_im_array(imshow_arr, self.r_sorted, self.elev_phi, self.theta_round, self.color, self.peak_check_mask, self.elev_add)
         end = time.time()
         print(f"Done with filling pano image aray in {int(np.round(end - start))} seconds")
         #correct for zero column artifacts
@@ -231,7 +231,7 @@ class PolarImage(object):
     def color_fill(self, rad, max_r):
         return _color_fill(rad, max_r)
     
-    def cart2pol_im(self, elev_data, midpoint, delta_deg, lat_orig):
+    def cart2pol_im(self, elev_data, midpoint, delta_deg, lat_orig, elev_photo):
         start = time.time()
         #cols and rows as indices
         cols = np.arange(0, elev_data.shape[0])
@@ -258,27 +258,34 @@ class PolarImage(object):
         im_arr = elev_data.flatten()
         im_arr_no_mp = np.delete(im_arr, np.ravel_multi_index([midpoint[0], midpoint[1]], elev_data.shape))
     
-        #convert x and y into modified polar
+       #convert x and y into modified polar
         theta = self.atan_theta(cols_corrected, rows_corrected)
         theta_round = np.round((theta+np.pi)*4, decimals = 2)*100 #reduce num theta for more efficient image processing, increasing decimals increases horizontal resolution
         rad, r_sorted = self.sort_rad(rows_corrected, cols_corrected)
         theta_round = theta_round.astype(int)
         elev_corrected = (im_arr_no_mp - delt_elev).astype(int)
         
-        max_r  = np.max(rad)
+        max_r = np.max(rad)
         color = self.color_fill(rad, max_r)
         color[elev_corrected<0] = 0 #to allow for elimination of all zero columns in fill_im_array step
+        
         elev_corrected[elev_corrected<0] = 0
+        
+        elev_phi = np.arctan2((elev_corrected - elev_photo),rad)
+        elev_phi = elev_phi+np.abs(np.min(elev_phi))
+        elev_phi = np.nan_to_num(elev_phi)
+        elev_phi_round = np.round((elev_phi+np.pi)*4, decimals = 2)*100
+        elev_phi_round = elev_phi_round.astype(int)
         
         self.theta_round = theta_round
         self.r_sorted = r_sorted
         self.rad = rad
-        self.elev_corrected = elev_corrected
+        self.elev_phi = elev_phi_round
         self.color = color
         end = time.time()
         print(f"Done with cart2pol in {int(np.round(end - start))} seconds")
         
-    def unwrap_peak_labels(self, aoi_P1, row_indices, midpoint, band1, elevs, df_selected):
+    def unwrap_peak_labels(self, aoi_P1, row_indices, midpoint, band1, elev_phi, df_selected):
         #names of all peaks in bounding box
         start = time.time()
         names_used = df_selected['Feature Name']
@@ -290,7 +297,7 @@ class PolarImage(object):
 
         #idx of peaks in flattened array (masked in this way due to multiple naming conventions - some peaks are within the same 30m x 30m box, so can't just make mask overlayed on DEM, need specific theta and elevation of each peak (encoded in flattened array idx).
         idx_peaks = np.ravel_multi_index([xs_p1, ys_p1], band1.shape)
-        elevs_aoi = elevs[idx_peaks]
+        elevs_aoi = elev_phi[idx_peaks]
         
         peak_check_mask = np.zeros((len(band1.flatten()),1))
         peak_check_mask[idx_peaks] = 1
