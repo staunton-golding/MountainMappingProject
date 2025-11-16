@@ -71,9 +71,9 @@ To use this repository, upload a photo of some pretty mountains, open mmp_main.i
 ## Future Plans
 First, this is only the first half of the project. Right now, a 360 view of the surrounding ridgeline is rendered, with each visible peak being noted. Finishing the second half of this pipeline is the main priority. Those steps are included above.
 
+Contributions are welcome!
+
 Other plans include:
   - Add support for non-geotagged images
   - optimize panoramic rendering speeds
 When I finish this project, I am sure there will be more things to improve.
-
-I also suspect that I'll need to revamp the pseudo-polar transform from 3D DEM to an unwrapped 2D 360 panoramic rendering of the ridgeline. Going to investigate this after I complete first iteration of this pipeline.
