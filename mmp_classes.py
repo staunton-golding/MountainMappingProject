@@ -166,7 +166,7 @@ def _fill_im_array(imshow_arr, r_sorted, rad, im_elev, theta_round, color, peak_
     
     length_imshow = imshow_arr.shape[1]
 
-    num_end = 250 #beyond ~7500 meters, no need to interpolate, good resolution
+    num_end = 500 #interpolate until ring covers most (95%) of thetas. Almost certainly << 500 interpolations
     #start with radial ring interpolations (every rad_input, take all values in that ring, interpolate)
     while n_div < num_end:
         temp_arr_theta = []
@@ -207,6 +207,12 @@ def _fill_im_array(imshow_arr, r_sorted, rad, im_elev, theta_round, color, peak_
                 arr_elev_unique.append(arr_elev[unique_idx_theta[idx_unique]]) #elev of a given unique theta
 
         arr_theta = arr_theta[unique_idx_theta]
+
+        if len(arr_theta) > 0.95 * length_imshow: #if most thetas represented in given ring, can break interpolation loop
+            print(
+                f"Interpolating ring radius = {rad_div}, ring number = {n_div}, distance interpolated = {n_div * rad_div * 30 / 1000} km. Stopping Interpolation. 95% of thetas represented in this ring (and presumably, all future rings).")
+            break
+
         arr_elev_unique = np.asarray(arr_elev_unique)
 
         temp_spline = make_smoothing_spline(arr_theta, arr_elev_unique, lam = lam_input) #lam is smoothing factor, make smoothing spline

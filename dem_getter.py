@@ -5,8 +5,6 @@ import requests
 import sys
 import os
 
-os.environ['PATH'] += "/Users/hankg/Desktop/MountainMappingProj/mmpenv2/lib/python3.11/site-packages"
-os.environ['PATH'] += "/Users/hankg/anaconda3/pkgs/gdal-3.6.2-py311he4f215e_9/lib/python3.11/site-packages"
 from osgeo import gdal
 import urllib
 import pyproj #Used for transforming / reprojecting points
