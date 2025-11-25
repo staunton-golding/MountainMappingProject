@@ -8,7 +8,7 @@ This document will discuss
 
 3) Hyperparameter testing / how lambda and rad values change the rendered image.
 
-1) To demonstrate the need for interpolation, below are the three photos and a gif. The first shows the view from a trail I hiked this summer. There are a few beautiful mountains, and to the left, a large hill that completely blocks out Vail, Lionshead, Peaks 1-10 and I’m sure a few others.
+To demonstrate the need for interpolation, below are the three photos and a gif. The first shows the view from a trail I hiked this summer. There are a few beautiful mountains, and to the left, a large hill that completely blocks out Vail, Lionshead, Peaks 1-10 and I’m sure a few others.
 
 ![Photograph of mountains with annotated peaks](Images/E6J_Image_1.png)
 
