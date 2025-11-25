@@ -10,19 +10,19 @@ This document will discuss
 
 1) To demonstrate the need for interpolation, below are the three photos and a gif. The first shows the view from a trail I hiked this summer. There are a few beautiful mountains, and to the left, a large hill that completely blocks out Vail, Lionshead, Peaks 1-10 and I’m sure a few others.
 
-![Enter image alt description](Images/E6J_Image_1.png)
+![Photograph of mountains with annotated peaks](Images/E6J_Image_1.png)
 
 Next, here’s a (cropped) panoramic render without near radius interpolation:
 
-![Enter image alt description](Images/7BR_Image_2.png)
+![Rendered image showing mountains correctly labeled, but spikes to left, with erroneously labelled mountains (they should be obscured)](Images/7BR_Image_2.png)
 
 Here’s a (cropped) panoramic render with interpolation:
 
-![Enter image alt description](Images/cdz_Image_3.png)
+![Same image as above, but the spikes are now filled in, and there is no erroneously shown peaks](Images/cdz_Image_3.png)
 
 And finally, here’s a gif showing how interpolation greatly reduces the number of false positive labelled mountains:
 
-![Enter image alt description](Images/mAm_Image_4.gif)
+![Gif showing how interpolation reduces spikes / erroneously shown peaks](Images/labeled_animation_num_rings.gif)
 
 Across tests, these spikes seen in the first rendering are from DEM pixels close to the site of the photograph. These spikes are due to the relatively low sampling resolution of the DEM - each DEM pixel has a 30m x 30m resolution (which is the best resolution offered over the entire continental US). But the render’s x axis, theta, has ~4000 sampled points. That means a hill / mountain, if sufficiently small in footprint, will ‘fill in’ only some thetas (e.g. a hill that is 10 pixels may have points at theta = 1.221, 1.222, 1.223, 1.224, and 1.225, but no points at theta = 1.2215, 1.2225, 1.2235 etc.). However, reducing the number of theta’s sampled would only serve to lower the resolution of the rendering, making the registration step far harder if not impossible. Fortunately, as distance grows, this issue becomes far less pressing (hills that would cause this error, when viewed from a mile away, are simply part of the ridgeline – maybe there’s a small blip, but it’s hardly noticeable if at all.)
 
@@ -46,12 +46,71 @@ Anyway, gifs and other things!
 
 How far do you need to interpolate with a given interpolating ring radius before (mostly) full coverage of thetas?
 
-![Enter image alt description](Images/Uu7_Image_5.png)
+![Screenshot showing how many rings interpolated before stopping criteria, and distance interpolated given an interpolating ring radius](Images/Uu7_Image_5.png)
 
-![Enter image alt description](Images/bg7_Image_14.gif)
+Varying lambda gifs (interpolating radius stays constant):
 
-Varying Interpolating Radius Gifs (Lambda stays constant):
+![Gif showing how rendered image changes due to lambda, with constant rad = 2 pixels](Images/lambda_animation_r2.gif)
 
-![Enter image alt description](Images/nsG_Image_15.gif)
+![Gif showing how rendered image changes due to lambda, with constant rad = 3 pixels](Images/lambda_animation_r3.gif)
 
-![Enter image alt description](Images/C6l_Image_36.gif)
+![Gif showing how rendered image changes due to lambda, with constant rad = 4 pixels](Images/lambda_animation_r4.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 5 pixels](Images/lambda_animation_r5.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 6 pixels](Images/lambda_animation_r6.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 7 pixels](Images/lambda_animation_r7.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 8 pixels](Images/lambda_animation_r8.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 9 pixels](Images/lambda_animation_r9.gif)
+
+![Gif showing how rendered image changes due to lambda, with constant rad = 10 pixels](Images/lambda_animation_r10.gif)
+
+Varying interpolating radius gifs (lambda stays constant):
+
+![Gif showing how rendered image changes due to radius, with constant lambda = GCV solution](Images/lam_gcv_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 0](Images/lam_0_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 50](Images/lam_50_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 100](Images/lam_100_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 150](Images/lam_150_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 200](Images/lam_200_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 250](Images/lam_250_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 300](Images/lam_300_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 350](Images/lam_350_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 400](Images/lam_400_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 450](Images/lam_450_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 500](Images/lam_500_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 550](Images/lam_550_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 600](Images/lam_600_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 650](Images/lam_650_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 700](Images/lam_700_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 750](Images/lam_750_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 800](Images/lam_800_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 850](Images/lam_850_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 900](Images/lam_900_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 950](Images/lam_950_animation.gif)
+
+![Gif showing how rendered image changes due to radius, with constant lambda = 1000](Images/lam_1000_animation.gif)
+
