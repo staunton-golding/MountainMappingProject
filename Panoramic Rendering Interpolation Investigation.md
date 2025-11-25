@@ -8,11 +8,11 @@ This document will discuss
 
 3) Hyperparameter testing / how lambda and rad values change the rendered image.
 
-To demonstrate the need for interpolation, below are the three photos and a gif. The first shows the view from a trail I hiked this summer. There are a few beautiful mountains, and to the left, a large hill that completely blocks out Vail, Lionshead, Peaks 1-10 and I’m sure a few others.
+To demonstrate the need for interpolation, below are three photos and a gif. The first shows the view from a trail I hiked this summer. There are a few beautiful mountains, and to the left, a large hill that completely blocks out Vail, Lionshead, Peaks 1-10 and I’m sure a few others.
 
 ![Photograph of mountains with annotated peaks](Images/E6J_Image_1.png)
 
-Next, here’s a (cropped) panoramic render without near radius interpolation:
+Next, here’s a (cropped) panoramic render showing the view from that photo location without near radius interpolation:
 
 ![Rendered image showing mountains correctly labeled, but spikes to left, with erroneously labelled mountains (they should be obscured)](Images/7BR_Image_2.png)
 
