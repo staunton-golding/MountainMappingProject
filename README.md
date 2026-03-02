@@ -50,7 +50,7 @@ I've supplied a .yaml file for use in creating a conda env for this project. To 
 
 `conda env create -f mmp.yaml`
 
-To activate the environemnt, run the following from the command line:
+To activate the environment, run the following from the command line:
 
 `conda activate mmp_env`
 
