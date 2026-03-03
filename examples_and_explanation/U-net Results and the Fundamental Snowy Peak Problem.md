@@ -57,16 +57,16 @@ This is just an overview of the results. It is more intended as a snapshot of th
 **Test Loss:** 0.3072 **Test Accuracy:** 0.8544  
 ![](Images/unet_animation4.gif)  
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 128x128 **LR:** 1e-4  
-**Test Loss:** 0.365 **Test Accuracy:** 0.861  
+**Test Loss:** 0.365 **Test Accuracy:** 0.829  
 ![](Images/unet_animation5.gif)  
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 256x256 **LR:** 1e-4  
-**Test Loss:** 0.366 **Test Accuracy:** 0.829
+**Test Loss:** 0.366 **Test Accuracy:** 0.861
 
 ​**Conclusions:**
 
 - Canny concatenated skip connections in upper blocks give far too much importance to strong edges.  
 - Qualitatively, prominent peaks were more easily segmented.  
-- 3 channel \> 1 channel.  
+- 3 channels \> 1 channel.  
 - Cross shaped artifacts only present in MobileNetV2 encoder (tutorial).  
 - Image size has little bearing on loss and accuracy.
 
