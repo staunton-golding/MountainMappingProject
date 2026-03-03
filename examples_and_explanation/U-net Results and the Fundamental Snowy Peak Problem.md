@@ -38,7 +38,7 @@ But, I ran 40-ish u-net tests, and should present the results. I ran them locall
 - Learning rate  
 - Loss function (SCE or DICE)  
 - Canny in skip connections  
-- Steps per epoch (kept between 8-12)  
+- Steps per epoch
 - Image size (128x128 or 256x256)  
 - Output activation function (+ from\_logits vs not)
 
