@@ -17,7 +17,7 @@ from tensorflow.keras import Model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatenate, Dropout, Lambda
+from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatenate, Dropout, Lambda, ReLU, BatchNormalization, Layer
 from tensorflow.keras.utils import to_categorical
 from IPython.display import clear_output
 from tensorflow_examples.models.pix2pix import pix2pix
@@ -222,7 +222,6 @@ def tf_dataset(x: object, y: object) -> Any:
 
 train_path = f"{output_split_path}/train/"
 train_images, train_masks = load_data(train_path)
-print(len(train_images))
 train_ds = tf_dataset(train_images, train_masks)
 
 test_path = f"{output_split_path}/test/"
@@ -344,9 +343,9 @@ def unet_model_tf_tutorial(output_channels: int) -> Any:
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
+
 #U-NET Model based on literature (not on tutorial).
 #Canny edge detection in skip connections to preserve edge-information (ideally, with dice, will weigh only pertinent canny) (spoiler, it did not really work).
-
 #for applying canny to skip connections
 def apply_canny(image_tensor: object) -> Any:
     # Convert TensorFlow tensor to NumPy array
@@ -382,6 +381,7 @@ def apply_canny(image_tensor: object) -> Any:
     edges_tensor = tf.convert_to_tensor(edges, dtype=tf.uint8)
     return edges_tensor
 
+
 #turn canny into tf function
 def preprocess_image_with_canny(image_tensor: object) -> Any:
     # tf.py_function requires specifying the output types
@@ -392,47 +392,55 @@ def preprocess_image_with_canny(image_tensor: object) -> Any:
     canny_output.set_shape(image_tensor.shape)
     return canny_output
 
-#lambda function for canny (just to make everything work smoothly)
-def canny_app() -> Any:
-    return Lambda(lambda c: preprocess_image_with_canny(c))
 
-canny_app = canny_app() #initilaize function
+#canny tf_fn wrapped in a layer
+class CannyAppLayer(Layer):
+    def call(self, x):
+        return preprocess_image_with_canny(x)
+
+
+# Building the convolutional block
+def conv_block(inputs: object, filters:int =64) -> Any:
+    # Taking first input and implementing the first conv block
+    conv1 = Conv2D(filters, kernel_size=(3, 3), padding="same")(inputs)
+    batch_norm1 = BatchNormalization()(conv1)
+    activ1 = ReLU()(batch_norm1)
+
+    # Taking first input and implementing the second conv block
+    conv2 = Conv2D(filters, kernel_size=(3, 3), padding="same")(activ1)
+    batch_norm2 = BatchNormalization()(conv2)
+    activ2 = ReLU()(batch_norm2)
+
+    return activ2
 
 #Encoder (down sample) blocks
 def encoder_block(filters: int, inputs: object, dropout_rate: float) -> tuple[Any, Any]:
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', strides=1, activation='relu')(inputs)
-    s = Conv2D(filters, kernel_size=(3, 3), padding='same', strides=1, activation='relu')(x)
+    s = conv_block(inputs, filters)
     p = MaxPooling2D(pool_size=(2, 2), padding='same')(s)
     p = Dropout(dropout_rate)(p)
     return s, p  #p provides the input to the next encoder block and s provides the context/features to the symmetrically opposite decoder block
 
-
 #Baseline layer is just a bunch on Convolutional Layers to extract high level features from the downsampled Image (bottleneck)
 def baseline_layer(filters: int, inputs: object) -> Any:
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', strides=1, activation='relu')(inputs)
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', strides=1, activation='relu')(x)
+    x = conv_block(inputs, filters)
     return x
-
 
 #Decoder Block (with canny in skip connections)
 def decoder_block_canny(filters: int, connections: object, inputs: object, dropout_rate: float) -> Any:
-    x = Conv2DTranspose(filters, kernel_size=(3, 3), padding='same', activation='relu', strides=2)(inputs)
-    canny_ds = canny_app(x)
-    skip_connections = tf.keras.layers.Concatenate(axis=-1)([x, connections, canny_ds])
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', activation='relu')(skip_connections)
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', activation='relu')(x)
+    up_samp = Conv2DTranspose(filters, kernel_size=(2, 2), padding='same', activation='relu', strides=2)(inputs)
+    canny_ds = CannyAppLayer()(up_samp)
+    skip_connections = tf.keras.layers.Concatenate(axis=-1)([up_samp, connections, canny_ds])
+    x = conv_block(skip_connections, filters)
     x = Dropout(dropout_rate)(x)
     return x
 
 #decoder block (old school, no canny)
 def decoder_block_non_canny(filters: int, connections: object, inputs: object, dropout_rate: float) -> Any:
-    x = Conv2DTranspose(filters, kernel_size=(3, 3), padding='same', activation='relu', strides=2)(inputs)
-    skip_connections = tf.keras.layers.Concatenate(axis=-1)([x, connections])
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', activation='relu')(skip_connections)
-    x = Conv2D(filters, kernel_size=(3, 3), padding='same', activation='relu')(x)
+    up_samp = Conv2DTranspose(filters, kernel_size=(3, 3), padding='same', activation='relu', strides=2)(inputs)
+    skip_connections = tf.keras.layers.Concatenate(axis=-1)([up_samp, connections])
+    x = conv_block(skip_connections, filters)
     x = Dropout(dropout_rate)(x)
     return x
-
 
 def unet(d1_can: bool, d2_can: bool, d3_can: bool, d4_can: bool, dr_r1: float, dr_r2: float, dr_r3: float, dr_r4: float) -> Any:
     #Defining the input layer and specifying the shape of the images
@@ -470,14 +478,12 @@ def unet(d1_can: bool, d2_can: bool, d3_can: bool, d4_can: bool, dr_r1: float, d
         d4 = decoder_block_non_canny(64, s1, d3, dropout_rate=dr_r_1)
 
     #Setting up the output function for binary classification of pixels
-    #outputs = Conv2D(OUTPUT_CLASSES, 1)(d4)
     outputs = Conv2D(OUTPUT_CLASSES, kernel_size=(1,1), activation='sigmoid')(d4)
 
     #Finalizing the model
     model = Model(inputs=inputs, outputs=outputs, name='Unet')
 
     return model
-
 
 #for metrics, dice coefficient
 def dice_coeff(y_true: list[Union[float,int]], y_pred: list[Union[float,int]], smooth: int = 1) -> Union[float,int]:
@@ -486,6 +492,26 @@ def dice_coeff(y_true: list[Union[float,int]], y_pred: list[Union[float,int]], s
     dice_coeff_return = (2 * intersection + smooth) / (union + smooth)
     return dice_coeff_return
 
+
+#NOTE: I know keras has a Dice function. I just wanted to see how I can implement my own loss functions
+class CustomDiceLoss(tf.keras.losses.Loss):
+    def __init__(self, name='custom_dice_loss'):
+        super().__init__(name=name)
+
+    def call(self, y_true: list[Union[float,int]], y_pred: list[Union[float,int]], smooth: int = 1) -> Union[float,int]:
+        intersection = tf.reduce_sum(y_true * y_pred, axis=-1)
+        union = tf.reduce_sum(y_true, axis=-1) + tf.reduce_sum(y_pred, axis=-1)
+        dice_coeff_return = (2 * intersection + smooth) / (union + smooth)
+        return 1 - dice_coeff_return
+
+    # Required for serialization: allows saving and loading the model
+    def get_config(self):
+        config = super().get_config()
+        config.update({'threshold': self.threshold})
+        return config
+
+
+custom_dice_loss_instance = CustomDiceLoss()
 
 #callbacks
 early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
@@ -498,12 +524,12 @@ tutorial = False
 d1_can = False
 d2_can = False
 d3_can = False
-d4_can = True
+d4_can = False
 #dropout rates
-dr_r_1 = .125
+dr_r_1 = .0625
 dr_r_2 = .125
-dr_r_3 = .125
-dr_r_4 = .125
+dr_r_3 = .25
+dr_r_4 = .35
 OUTPUT_CLASSES = 2
 
 if tutorial:
@@ -516,11 +542,10 @@ model_unet.summary()
 lr = 0.00005
 optimizer_use = tf.keras.optimizers.Adam(learning_rate=lr)
 model_unet.compile(optimizer=optimizer_use,
-                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+                   loss=custom_dice_loss_instance,
                    metrics=['accuracy', dice_coeff])
 
 EPOCHS = 300
-VAL_SUBSPLITS = 5
 VALIDATION_STEPS = 10
 
 BUFFER_SIZE = 1000
@@ -529,13 +554,14 @@ early_stopping_bin = True
 
 if tutorial:
     out_dir_gif = (
-    f"./{EPOCHS}_epochs_{VAL_SUBSPLITS}_val_subsplits_{lr}_learning_rate_{VALIDATION_STEPS}_val_steps_{STEPS_PER_EPOCH}_steps_per_epoch_{BATCH_SIZE}_"
-    f"batch_size_{TRAIN_LENGTH}_train_length_{BUFFER_SIZE}_buff_size_{IMG_SIZE}_img_size_TUTORIAL_SCE_early_stopping_reduce_LR")
+    f"./{EPOCHS}_epochs_{lr}_learning_rate_{STEPS_PER_EPOCH}_steps_per_epoch_{BATCH_SIZE}_"
+    f"batch_size_{TRAIN_LENGTH}_train_length_{BUFFER_SIZE}_buff_size_{IMG_SIZE}_img_size_TUTORIAL_DICE_early_stopping_reduce_LR")
     
 else:
     out_dir_gif = (
-    f"./{EPOCHS}_epochs_{VAL_SUBSPLITS}_val_subsplits_{lr}_learning_rate_{VALIDATION_STEPS}_val_steps_{STEPS_PER_EPOCH}_steps_per_epoch_{BATCH_SIZE}_"
-    f"batch_size_{TRAIN_LENGTH}_train_length_{BUFFER_SIZE}_buff_size_{IMG_SIZE}_img_size_{d1_can}_1c_{d2_can}_2c_{d3_can}_3c_{d4_can}_4c_SCE_early_stopping_sigmoid_reduce_LR")
+    f"./{EPOCHS}_epochs_{lr}_learning_rate_{STEPS_PER_EPOCH}_steps_per_epoch_{BATCH_SIZE}_"
+    f"batch_size_{TRAIN_LENGTH}_train_length_{BUFFER_SIZE}_buff_size_{IMG_SIZE}_img_size_{d1_can}_1c_{d2_can}_2c_{d3_can}_3c_{d4_can}_4c_{dr_r_1}_dr1_"
+    f"{dr_r_2}_dr2_{dr_r_3}_dr3_{dr_r_4}_dr4_DICE_early_stopping_sigmoid_reduce_LR_with_BN")
 
 #NOTE, WHEN CHANGING LOSS FUNCTION, CHANGE SCE TO ABBREVIATION FOR LOSS FUNCTION
 #ALSO, early stopping and reduce LR pretty much always a good idea. If you want to change that, make sure to also change end of out_dir_gif name
@@ -608,3 +634,4 @@ loss, accuracy, dice = model_unet.evaluate(test_ds, verbose=1)
 print(f"Test Loss: {loss}")
 print(f"Test Accuracy: {accuracy}")
 print(f"Test DICE: {dice}")
+
