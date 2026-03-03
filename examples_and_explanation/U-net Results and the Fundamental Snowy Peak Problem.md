@@ -55,30 +55,35 @@ This is just an overview of the results. It is more intended as a snapshot of th
 <p align="center">
   <img width="400" height="300" src="Images/training_and_validation_loss_3.png">
 </p>   
+
 **Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 15 **Canny:** None **Output Activation:** Sigmoid **Image Size:** 256x256 **LR:** 5e-5  
 **Val Loss:** 0.3072 **Val Accuracy:** 0.8544  
 ![](Images/unet_animation4.gif)  
 <p align="center">
   <img width="400" height="300" src="Images/training_and_validation_loss_4.png">
 </p>   
+
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 128x128 **LR:** 1e-4  
 **Val Loss:** 0.365 **Val Accuracy:** 0.829  
 ![](Images/unet_animation5.gif)  
 <p align="center">
   <img width="400" height="300" src="Images/training_and_validation_loss_5.png">
 </p>   
+
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 256x256 **LR:** 1e-4  
 **Val Loss:** 0.366 **Val Accuracy:** 0.861
 ![](Images/unet_animation1.gif)  
 <p align="center">
   <img width="400" height="300" src="Images/training_and_validation_loss_1.png">
-</p>   
+</p>  
+
 **Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** bottom 2 blocks **Output Activation:** Sigmoid **Image Size:** 128x128 **LR:** 1e-4  
 **Val Loss:** 0.380 **Val Accuracy:** 0.802  
 ![](Images/unet_animation2.gif)  
 <p align="center">
   <img width="400" height="300" src="Images/training_and_validation_loss_2.png">
 </p> 
+
 **Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 15 **Canny:** top 2 blocks **Output Activation:** Sigmoid **Image Size:** 256x256 **LR:** 5e-5  
 **Val Loss:** 0.361 **Val Accuracy:** 0.8141  
 
