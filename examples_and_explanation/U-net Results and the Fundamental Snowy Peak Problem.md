@@ -42,35 +42,43 @@ But, I ran 40-ish u-net tests, and should present the results. I ran them locall
 - Image size (128x128 or 256x256)  
 - Output activation function (+ from\_logits vs not)
 
-A note: I realize that I should have varied far fewer hyperparameters. And by the end, I did. I largely stuck to a learning rate of either 1e-5 or 5e-5, based on literature. Additionally, most hyperparameters were either functionally binary (like loss function or image size), or had a very small range. 
+A note: I realize that I should have varied far fewer hyperparameters. And by the end, I did. I largely stuck to a learning rate of either 1e-4 or 5e-5, based on literature. Additionally, most hyperparameters were either functionally binary (like loss function or image size), or had a very small range. 
 
-I was interested in, obviously, accuracy and loss metrics, but I was mostly interested in visualizing how they learned. Below, you will see gifs that show the resized image, the true mask, and the estimated mask at the end of each epoch. You will also see values for test\_loss and test\_accuracy.
+I was interested in, obviously, accuracy and loss metrics, but I was mostly interested in visualizing how they learned. Below, you will see gifs that show the resized image, the true mask, and the estimated mask at the end of each epoch. You will also see values for val\_loss and val\_accuracy, and loss curves.
 
 All trials ran for 300 epochs, with early stopping and learning rate reduction. All stopped before 300 epochs. (See code for ES implementation). All had the same train length (number of training images), buffer size, and all non-tutorial trials had the same dropout rates (see code for specifics). All non-tutorial trials also utilized a batch normalization layer in each convolution block, while the tutorial trials did not. Some trials were full color, some were single channel.
 
-This is just an overview of the results. It is more intended as a snapshot of the U-net training process, and an examination as to where U-nets fail in this instance. In the tutorial trials, the encoder is a pretrained MobileNetV2 mode.  More detailed results will be uploaded in an accompanying table.  
-![](Images/unet_animation1.gif)  
-**Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** bottom 2 blocks **Output Activation:** Sigmoid **Image Size:** 128x128 **LR:** 1e-4  
-**Test Loss:** 0.380 **Test Accuracy:** 0.802  
-![](Images/unet_animation2.gif)  
-**Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 15 **Canny:** top 2 blocks **Output Activation:** Sigmoid **Image Size:** 256x256 **LR:** 5e-5  
-**Test Loss:** 0.361 **Test Accuracy:** 0.8141  
+I've shown best results below. When looking at all output gifs, I noticed, often, the edge information was getting lost, and the predicted mask didn't adhere to any grounded structure. So I added the Canny skip connection, as a means to try and force a grounded edge context. This only kind of worked. Depending on which depth of block I added the Canny, it would at times railroad all other information, and the predicted mask would be far too informed by harsh edges in the photo. All the same, it helped me to understand both what was happening in the training process, and how to customize a TF training pipeline.
+
+This is just an overview of the results. It is more intended as a snapshot of the U-net training process, and an examination as to where U-nets fail in this instance. In the tutorial trials, the encoder is a pretrained MobileNetV2 mode.  More detailed results will be uploaded in an accompanying table. 
 ![](Images/unet_animation3.gif)  
+![](Images/training_and_validation_loss_3.png)  
 **Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 15 **Canny:** None **Output Activation:** Sigmoid **Image Size:** 256x256 **LR:** 5e-5  
-**Test Loss:** 0.3072 **Test Accuracy:** 0.8544  
+**Val Loss:** 0.3072 **Val Accuracy:** 0.8544  
 ![](Images/unet_animation4.gif)  
+![](Images/training_and_validation_loss_4.png)  
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 128x128 **LR:** 1e-4  
-**Test Loss:** 0.365 **Test Accuracy:** 0.829  
+**Val Loss:** 0.365 **Val Accuracy:** 0.829  
 ![](Images/unet_animation5.gif)  
+![](Images/training_and_validation_loss_5.png)  
 **Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 256x256 **LR:** 1e-4  
-**Test Loss:** 0.366 **Test Accuracy:** 0.861
+**Val Loss:** 0.366 **Val Accuracy:** 0.861
+![](Images/unet_animation1.gif)  
+![](Images/training_and_validation_loss_1.png)  
+**Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** bottom 2 blocks **Output Activation:** Sigmoid **Image Size:** 128x128 **LR:** 1e-4  
+**Val Loss:** 0.380 **Val Accuracy:** 0.802  
+![](Images/unet_animation2.gif)  
+![](Images/training_and_validation_loss_2.png)  
+**Tutorial?:** No **Loss Function:** SCE **Steps per Epoch:** 15 **Canny:** top 2 blocks **Output Activation:** Sigmoid **Image Size:** 256x256 **LR:** 5e-5  
+**Val Loss:** 0.361 **Val Accuracy:** 0.8141  
 
 ​**Conclusions:**
 
 - Canny concatenated skip connections in upper blocks give far too much importance to strong edges.  
 - Qualitatively, prominent peaks were more easily segmented.  
 - 3 channels \> 1 channel.  
-- Cross shaped artifacts only present in MobileNetV2 encoder (tutorial).  
+- Cross shaped artifacts only present in MobileNetV2 encoder (tutorial).
+- Despite having strong accuracy values, the tutorial U-net trials had a propensity towards overfitting.
 - Image size has little bearing on loss and accuracy.
 
 **Future steps:**  
