@@ -1,4 +1,4 @@
-**Introduction**
+**Introduction:**
 
 I started this project for a few reasons.
 
@@ -17,13 +17,15 @@ Image B, the render, would be the static image (Image A is registered to Image B
 
 To identify points in the render that uniquely exist in the photo as well would be challenging. A better way, I thought, would be to isolate the photo ridgeline and rendered ridgeline, and register the photo ridgeline to the rendered ridgeline.
 
-**The Fundamental Snowy Peak Problem**
+**The Fundamental Snowy Peak Problem:**
 
 But this approach, it seems, was flawed. Unfortunately, mountain ranges are often capped with snowy peaks, and all too often, clouds dip below the peakline. Both of these factors contribute towards the challenge of accurate segmentations. In examples below, even with my best efforts, you will see how these unique challenges cause segmentations to fail. Segmentations, by their nature, work best when there is pixel-level context separating foreground from background. But what happens when the foreground and background are the exact same color and texture? When the delineation is but the continuation of the segmentation outside the clouds? This could be argued to be an edge case, but at the end of the day, this project is about learning. What better way to learn than coming across a problem like this?
 
 This specific challenge isn't unique to U-nets. I tried segmenting images via Canny and Sobel operators. I tried using watershed segmentations, clustering and thresholding methods. I haven’t included any of those results, because they simply didn’t work. Anytime a cloud was present around the ridgeline, these methods failed, and failed horribly so. 
 
-**Examples of problematic images and their associated masks**  
+Snowy peaks and clouds cause segmentations to fail. Humans and machines will, at times, fail to delineate the true ridgeline. That is the fundamental snowy peak problem.
+
+**Examples of problematic images and their associated masks:**  
 
 Each of these images have, even to the human eye, unclear ridgelines. The masks, then, are best guesses. In making this dataset, I tried to guess at the true ridgeline. But even this, often, proved fruitless. I did err on the side of what I saw – I didn’t want to poison my dataset. Approximately a quarter to a third of scraped images of mountains had this issue.   
 I have come to appreciate why apps will either use your phone’s gps and accelerometers to just place the render in the right place, or will have the user register the images themselves.  
@@ -31,7 +33,7 @@ I have come to appreciate why apps will either use your phone’s gps and accele
 **![](Images/image242_resized.jpg)![](Images/image242_mask.jpg)**  
 **![](Images/image343_resized.jpg)![](Images/image343_mask.jpg)**  
 
-**U-net results**  
+**U-net results:**  
 
 But, I ran 40-ish u-net tests, and should present the results. I ran them locally, on cpu, on my computer. The main hyperparameters changed from run-to-run were:
 
