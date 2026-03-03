@@ -70,7 +70,7 @@ This is just an overview of the results. It is more intended as a snapshot of th
   <img width="400" height="300" src="Images/training_and_validation_loss_5.png">
 </p>   
 
-**Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 256x256 **LR:** 1e-4  
+**Tutorial?:** Yes **Loss Function:** SCE **Steps per Epoch:** 8 **Canny:** None **Output Activation:** None **Image Size:** 224x224 **LR:** 1e-4  
 **Val Loss:** 0.366 **Val Accuracy:** 0.861
 ![](Images/unet_animation1.gif)  
 <p align="center">
