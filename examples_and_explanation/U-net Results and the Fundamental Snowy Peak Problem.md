@@ -24,12 +24,15 @@ But this approach, it seems, was flawed. Unfortunately, mountain ranges are ofte
 This specific challenge isn't unique to U-nets. I tried segmenting images via Canny and Sobel operators. I tried using watershed segmentations, clustering and thresholding methods. I haven’t included any of those results, because they simply didn’t work. Anytime a cloud was present around the ridgeline, these methods failed, and failed horribly so. 
 
 **Examples of problematic images and their associated masks**  
+
 Each of these images have, even to the human eye, unclear ridgelines. The masks, then, are best guesses. In making this dataset, I tried to guess at the true ridgeline. But even this, often, proved fruitless. I did err on the side of what I saw – I didn’t want to poison my dataset. Approximately a quarter to a third of scraped images of mountains had this issue.   
 I have come to appreciate why apps will either use your phone’s gps and accelerometers to just place the render in the right place, or will have the user register the images themselves.  
 **![](Images/image154_resized.jpg)![](Images/image154_mask.jpg)**  
 **![](Images/image242_resized.jpg)![](Images/image242_mask.jpg)**  
 **![](Images/image343_resized.jpg)![](Images/image343_mask.jpg)**  
+
 **U-net results**  
+
 But, I ran 40-ish u-net tests, and should present the results. I ran them locally, on cpu, on my computer. The main hyperparameters changed from run-to-run were:
 
 - Learning rate  
@@ -71,7 +74,8 @@ This is just an overview of the results. It is more intended as a snapshot of th
 - Image size has little bearing on loss and accuracy.
 
 **Future steps:**  
-For what I will try next,
+
+What I will try next:
 
 - Increasing training data  
   - While this could improve segmentation via U-nets, it likely doesn’t solve the fundamental snowy peak problem.  
