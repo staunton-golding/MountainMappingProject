@@ -492,7 +492,7 @@ def dice_coeff(y_true: list[Union[float,int]], y_pred: list[Union[float,int]], s
     return dice_coeff_return
 
 
-#NOTE: I know keras has a Dice function. I just wanted to see how I can implement my own loss functions
+#NOTE: Dice + BCE mean. (Recent Dice trials had good contours, but were sparse. CE losses were much more filled in.)
 class CustomDiceBCELoss(tf.keras.losses.Loss):
     def __init__(self, name='custom_dice_loss'):
         super().__init__(name=name)
