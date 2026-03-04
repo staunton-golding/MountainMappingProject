@@ -1,16 +1,15 @@
-from typing import Union, Any
-
 import numpy as np
 import cv2
-from glob import glob
 import matplotlib.pyplot as plt
 
 import os
 import shutil
 import random
 
+from typing import Union, Any
 from numpy import ndarray, dtype, floating
 from numpy._typing import _32Bit
+from glob import glob
 
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -478,7 +477,7 @@ def unet(d1_can: bool, d2_can: bool, d3_can: bool, d4_can: bool, dr_r1: float, d
         d4 = decoder_block_non_canny(64, s1, d3, dropout_rate=dr_r_1)
 
     #Setting up the output function for binary classification of pixels
-    outputs = Conv2D(OUTPUT_CLASSES, kernel_size=(1,1), activation='sigmoid')(d4)
+    outputs = Conv2D(1, kernel_size=(1,1), activation='sigmoid')(d4)
 
     #Finalizing the model
     model = Model(inputs=inputs, outputs=outputs, name='Unet')
@@ -494,15 +493,26 @@ def dice_coeff(y_true: list[Union[float,int]], y_pred: list[Union[float,int]], s
 
 
 #NOTE: I know keras has a Dice function. I just wanted to see how I can implement my own loss functions
-class CustomDiceLoss(tf.keras.losses.Loss):
+class CustomDiceBCELoss(tf.keras.losses.Loss):
     def __init__(self, name='custom_dice_loss'):
         super().__init__(name=name)
 
     def call(self, y_true: list[Union[float,int]], y_pred: list[Union[float,int]], smooth: int = 1) -> Union[float,int]:
+
         intersection = tf.reduce_sum(y_true * y_pred, axis=-1)
         union = tf.reduce_sum(y_true, axis=-1) + tf.reduce_sum(y_pred, axis=-1)
         dice_coeff_return = (2 * intersection + smooth) / (union + smooth)
-        return 1 - dice_coeff_return
+        dice_loss = 1 - dice_coeff_return
+
+        y_pred = tf.clip_by_value(y_pred, 1e-7, 1 - 1e-7)
+        bce_loss = -(y_true * tf.math.log(y_pred) + (1 - y_true) * tf.math.log(1 - y_pred))
+        bce_loss = tf.reduce_mean(bce_loss, axis=-1)
+
+        loss_comb = tf.concat([dice_loss, bce_loss], axis=-1)
+        loss_comb = tf.reduce_mean(loss_comb, axis=-1)
+
+        return loss_comb
+
 
     # Required for serialization: allows saving and loading the model
     def get_config(self):
@@ -511,7 +521,7 @@ class CustomDiceLoss(tf.keras.losses.Loss):
         return config
 
 
-custom_dice_loss_instance = CustomDiceLoss()
+custom_dice_bce_loss_instance = CustomDiceBCELoss()
 
 #callbacks
 early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
@@ -523,7 +533,7 @@ tutorial = False
 #canny in skip connections
 d1_can = False
 d2_can = False
-d3_can = False
+d3_can = True
 d4_can = False
 #dropout rates
 dr_r_1 = .0625
@@ -542,14 +552,14 @@ model_unet.summary()
 lr = 0.00005
 optimizer_use = tf.keras.optimizers.Adam(learning_rate=lr)
 model_unet.compile(optimizer=optimizer_use,
-                   loss=custom_dice_loss_instance,
+                   loss=custom_dice_bce_loss_instance,
                    metrics=['accuracy', dice_coeff])
 
 EPOCHS = 300
 VALIDATION_STEPS = 10
 
 BUFFER_SIZE = 1000
-STEPS_PER_EPOCH = 9#TRAIN_LENGTH // BATCH_SIZE
+STEPS_PER_EPOCH = TRAIN_LENGTH // BATCH_SIZE
 early_stopping_bin = True
 
 if tutorial:
@@ -561,7 +571,7 @@ else:
     out_dir_gif = (
     f"./{EPOCHS}_epochs_{lr}_learning_rate_{STEPS_PER_EPOCH}_steps_per_epoch_{BATCH_SIZE}_"
     f"batch_size_{TRAIN_LENGTH}_train_length_{BUFFER_SIZE}_buff_size_{IMG_SIZE}_img_size_{d1_can}_1c_{d2_can}_2c_{d3_can}_3c_{d4_can}_4c_{dr_r_1}_dr1_"
-    f"{dr_r_2}_dr2_{dr_r_3}_dr3_{dr_r_4}_dr4_DICE_early_stopping_sigmoid_reduce_LR_with_BN")
+    f"{dr_r_2}_dr2_{dr_r_3}_dr3_{dr_r_4}_dr4_bce_DICE_early_stopping_sigmoid_reduce_LR_with_BN")
 
 #NOTE, WHEN CHANGING LOSS FUNCTION, CHANGE SCE TO ABBREVIATION FOR LOSS FUNCTION
 #ALSO, early stopping and reduce LR pretty much always a good idea. If you want to change that, make sure to also change end of out_dir_gif name
@@ -634,4 +644,5 @@ loss, accuracy, dice = model_unet.evaluate(test_ds, verbose=1)
 print(f"Test Loss: {loss}")
 print(f"Test Accuracy: {accuracy}")
 print(f"Test DICE: {dice}")
+
 
